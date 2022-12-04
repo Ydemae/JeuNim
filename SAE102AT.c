@@ -1,4 +1,6 @@
 #include<stdio.h>
+#define LMAX 30
+#define CMAX 30
 
 struct T_case
 {
@@ -6,6 +8,8 @@ struct T_case
     int colonne;
 };
 int hasard(int min, int max);
+int lire_entier(int min, int max);
+void parametres(int *L, int *C, int *lvl, int * firstPlayer);
 
 void main()
 {
@@ -18,7 +22,27 @@ void main()
     printf("\n le nombre entre 10 et 20 est %d", jsp);
 }
 
-
+void parametres(int *L, int *C, int *lvl, int * firstPlayer)
+{
+    printf("Saisir le nombre de lignes : ");
+    *L = lire_entier(5, LMAX);
+    printf("\nSaisir le nombre de colonnes : ");
+    *C = lire_entier(5, CMAX);
+    printf("\nDe quel niveau est l'IA ? (de 1 à 4) : ");
+    *lvl = lire_entier(1, 4);
+    printf("\nQui commence ? Ordinateur (1), joueur (2) : ");
+    *firstPlayer = lire_entier(1,2);
+}
+int lire_entier(int min, int max)
+{
+    int n;
+    do
+    {
+        scanf("%d", &n);
+        while(getchar()!='\n');
+    } while (n < min || n > max);
+    return n;
+}
 int hasard(int min, int max)
 {
     int res;
