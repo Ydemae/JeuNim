@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<wchar.h>
 #define LMAX 30
 #define CMAX 30
 
@@ -10,18 +11,50 @@ struct T_case
 int hasard(int min, int max);
 int lire_entier(int min, int max);
 void parametres(int *L, int *C, int *lvl, int * firstPlayer);
+void afficheGrille(int tab[][CMAX], int L, int C);
 
 void main()
 {
     srand((unsigned int)time(NULL));
-    struct T_case case1, case2;
-    case1.ligne = 10;
-    case2.colonne = 11;
-    printf("%d et %d", case1.ligne, case2.colonne);
-    int jsp = hasard(10, 20);
-    printf("\n le nombre entre 10 et 20 est %d", jsp);
+    int grille[LMAX][CMAX] = {{0, 1, 1, 1, 1},{1, 1, 1, 1, 1},{1, 1, 1, 1, 1},{1, 1, 1, 1, 1},{1, 1, 1, 1, 1}};
+    afficheGrille(grille, 5, 5);
 }
 
+
+void afficheGrille(int tab[][CMAX], int L, int C)
+{
+    for (int compteLigne = -1; compteLigne < L; compteLigne++)
+    {
+        if (compteLigne == -1)
+        {
+            for (int i = 0; i <= C; i++)
+            {
+                printf("\e[0;32m %3d\e[0m", i);
+            }
+            printf("\n");
+        }
+        else
+        {
+            for (int compteColonne = 0; compteColonne < C; compteColonne++)
+            {
+                if (compteColonne == 0)
+                {
+                    printf("\e[0;32m %3d\e[0m||", compteLigne + 1);
+                }
+                if (compteLigne == L - 1 && compteColonne == C - 1) printf("\e[7;34m%3c\e[0m|", '-');
+                else if (tab[compteLigne][compteColonne] > 0)
+                {
+                    printf("\e[1;29m%3c\e[0m|", '-');
+                }
+                if (tab[compteLigne][compteColonne] == 0)
+                {
+                    printf("\e[1;31m%3d\e[0m|", tab[compteLigne][compteColonne]);
+                }
+            }
+            printf("\n");
+        }
+    }
+}
 void parametres(int *L, int *C, int *lvl, int * firstPlayer)
 {
     printf("Saisir le nombre de lignes : ");
