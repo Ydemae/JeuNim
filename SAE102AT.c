@@ -9,37 +9,59 @@ typedef struct
     int colonne;
 } T_case;
 
+void creerTabNimber(int nlig, int ncol, int tabnim[LMAX][CMAX]);
 void echange(int *a, int *b);
-void voisines(int tab[][CMAX], int L, int C, T_case tabvois[], T_case Acase, int *n);
-int verifieCase(int tab[][CMAX], int L, int C, T_case Acase);
+void voisines(int L, int C, T_case tabvois[], T_case Acase, int *n);
+int verifieCase(int L, int C, T_case Acase);
 int hasard(int min, int max);
 int lire_entier(int min, int max);
-void parametres(int *L, int *C, int *lvl, int *firstPlayer);
+void parametres(int *nlig, int *ncol, int *niveau, int *next);
 void afficheGrille(int tab[][CMAX], int L, int C, T_case *Acase);
 void initGrille(int tab[][CMAX], int L, int C);
 void coupJoueur(int tab[][CMAX], int L, int C, T_case Acase);
+int nimber(int nlig, int ncol, T_case Acase, int tabnim[LMAX][CMAX]);
+T_case coupOrdiGagnant(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX]);
+T_case coupOrdiHasard(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX]);
+void coupOrdi(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX], int tab[LMAX][CMAX], int niveau);
+
 
 void main()
 {
     T_case TheCase, TabVois[4];
     int n = 0;
     srand((unsigned int)time(NULL));
-    int grille[LMAX][CMAX];
+    int grille[LMAX][CMAX], tabnim[LMAX][CMAX];
     int TabVoisines[LMAX];
+    creerTabNimber(5, 5, tabnim);
     initGrille(grille, 5, 5);
     afficheGrille(grille, 5, 5, &TheCase);
     coupJoueur(grille, 5, 5, TheCase);
     afficheGrille(grille, 5, 5, &TheCase);
-    printf("\n %d %d ", TheCase.ligne, TheCase.colonne);
 }
 
+void creerTabNimber(int nlig, int ncol, int tabnim[LMAX][CMAX])
+{
+    int i,j, k, n, test0;
+    T_case tabvois[4];
+    tabnim[nlig-1][ncol-1] = 0;
+    for (j = ncol - 1; j >= 0; j --)
+        for (i = nlig - 1; i >= 0; i--)
+        {
+            test0 = 0;
+            T_case actualCase = {i, j};
+            voisines(nlig, ncol, tabvois, actualCase, &n);
+            for (k = 0; k < n; k++ ) if (tabnim[tabvois[k].ligne][tabvois[k].colonne] == 0) test0 += 1;
+            if (test0 != 0) tabnim[i][j] = 1;
+            else tabnim[i][j] = 0;
+        }
+}
 void echange(int *a, int *b)
 {
     int temp = *a;
     *a = *b;
     *b = temp;
 }
-void voisines(int tab[][CMAX], int L, int C, T_case tabvois[], T_case Acase, int *n)
+void voisines(int L, int C, T_case tabvois[], T_case Acase, int *n)
 {
     *n = 4;
     int i = 0;
@@ -47,28 +69,28 @@ void voisines(int tab[][CMAX], int L, int C, T_case tabvois[], T_case Acase, int
     T_case sud2 = {Acase.ligne + 2, Acase.colonne};
     T_case est1 = {Acase.ligne, Acase.colonne + 1};
     T_case est2 = {Acase.ligne, Acase.colonne + 2};
-    if (verifieCase(tab, L, C, sud1) == 1)
+    if (verifieCase(L, C, sud1) == 1)
     {
         tabvois[i] = sud1;
         i += 1;
     }
     else
         *n -= 1;
-    if (verifieCase(tab, L, C, sud2) == 1)
+    if (verifieCase( L, C, sud2) == 1)
     {
         tabvois[i] = sud2;
         i += 1;
     }
     else
         *n -= 1;
-    if (verifieCase(tab, L, C, est1) == 1)
+    if (verifieCase(L, C, est1) == 1)
     {
         tabvois[i] = est1;
         i += 1;
     }
     else
         *n -= 1;
-    if (verifieCase(tab, L, C, est2) == 1)
+    if (verifieCase( L, C, est2) == 1)
     {
         tabvois[i] = est2;
         i += 1;
@@ -76,9 +98,9 @@ void voisines(int tab[][CMAX], int L, int C, T_case tabvois[], T_case Acase, int
     else
         *n -= 1;
 }
-int verifieCase(int tab[][CMAX], int L, int C, T_case Acase)
+int verifieCase(int L, int C, T_case Acase)
 {
-    if (Acase.colonne < 0 || Acase.colonne >= L || Acase.ligne < 0 || Acase.ligne >= C || tab[Acase.ligne][Acase.colonne] != 1)
+    if (Acase.colonne < 0 || Acase.colonne >= L || Acase.ligne < 0 || Acase.ligne >= C)
         return -1;
     else
         return 1;
@@ -87,7 +109,7 @@ void coupJoueur(int tab[][CMAX], int L, int C, T_case Acase)
 {
     T_case Tabvoisines[CMAX];
     int n, i;
-    voisines(tab, L, C, Tabvoisines, Acase, &n);
+    voisines(L, C, Tabvoisines, Acase, &n);
     printf("C'est ton tour !\nGet your shit together ! ");
     for (i = 1; i <= n; i++)
         printf(" %d : (%d, %d)", i, Tabvoisines[i - 1].ligne + 1, Tabvoisines[i - 1].colonne + 1);
@@ -145,16 +167,16 @@ void afficheGrille(int tab[][CMAX], int L, int C, T_case *Acase)
         }
     }
 }
-void parametres(int *L, int *C, int *lvl, int *firstPlayer)
+void parametres(int *nlig, int *ncol, int *niveau, int *next)
 {
     printf("Saisir le nombre de lignes : ");
-    *L = lire_entier(5, LMAX);
+    *nlig = lire_entier(5, LMAX);
     printf("\nSaisir le nombre de colonnes : ");
-    *C = lire_entier(5, CMAX);
+    *ncol = lire_entier(5, CMAX);
     printf("\nDe quel niveau est l'IA ? (de 1 à 4) : ");
-    *lvl = lire_entier(1, 4);
+    *niveau = lire_entier(1, 4);
     printf("\nQui commence ? Ordinateur (1), joueur (2) : ");
-    *firstPlayer = lire_entier(1, 2);
+    *next = lire_entier(1, 2);
 }
 int lire_entier(int min, int max)
 {
@@ -165,7 +187,7 @@ int lire_entier(int min, int max)
         while (getchar() != '\n')
             ;
         if (n < min || n > max)
-            printf("\nErreur !\n");
+            printf("\n\e[7;31mErreur !\e[0m\n");
     } while (n < min || n > max);
     return n;
 }
@@ -177,4 +199,53 @@ int hasard(int min, int max)
         res = rand() % max;
     } while (res < min);
     return res;
+}
+int nimber(int nlig, int ncol, T_case Acase, int tabnim[LMAX][CMAX])
+{
+    return tabnim[Acase.ligne][Acase.colonne];
+}
+T_case coupOrdiHasard(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX])
+{
+    int n, i;
+    T_case tabvois[4];
+    voisines(nlig, ncol, tabvois, Acase, &n);
+    int coup = hasard(1, n);
+    return tabvois[coup - 1];
+}
+T_case coupOrdiGagnant(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX])
+{
+    int n, i;
+    T_case tabvois[4];
+    voisines(nlig, ncol, tabvois, Acase, &n);
+    for (i = 0; i < n; i++)
+        if (nimber(nlig, ncol, tabvois[i], tabnim) == 0)
+        {
+            T_case rep = {tabvois[i].ligne, tabvois[i].colonne};
+            return rep;
+        }
+    return coupOrdiHasard(nlig, ncol, Acase, tabnim);
+}
+void coupOrdi(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX], int tab[LMAX][CMAX], int niveau)
+{
+    int randomNbe = hasard(1, 3);
+    T_case caseVisee;
+    if (niveau == 1)
+    {
+        caseVisee = coupOrdiHasard(nlig, ncol, Acase, tabnim);
+    }
+    else if (niveau == 2)
+    {
+        if (randomNbe == 1) caseVisee = coupOrdiGagnant(nlig, ncol, Acase, tabnim);
+        else caseVisee = coupOrdiHasard(nlig, ncol, Acase, tabnim);
+    }
+    else if (niveau == 3)
+    {
+        if (randomNbe == 3) caseVisee = coupOrdiHasard(nlig, ncol, Acase, tabnim);
+        else caseVisee = coupOrdiGagnant(nlig, ncol, Acase, tabnim);
+    }
+    else caseVisee = coupOrdiGagnant(nlig, ncol, Acase, tabnim);
+    printf("\nTour de l'ordinateur :");
+    printf("\nL'ordinateur deplace le pion en case (%d, %d) !", caseVisee.ligne, caseVisee.colonne);
+    echange(&tab[caseVisee.ligne][caseVisee.colonne], &tab[Acase.ligne][Acase.colonne]);
+
 }
