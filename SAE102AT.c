@@ -27,17 +27,38 @@ void coupOrdi(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX], int t
 
 void main()
 {
-    T_case TheCase, TabVois[4];
-    int n = 0;
+    T_case actualCase, TabVois[4];
+    int n, nlig, ncol, niveau, next;
     srand((unsigned int)time(NULL));
     int grille[LMAX][CMAX], tabnim[LMAX][CMAX];
-    int TabVoisines[LMAX];
-    creerTabNimber(5, 5, tabnim);
-    initGrille(grille, 5, 5);
-    afficheGrille(grille, 5, 5, &TheCase);
-    coupJoueur(grille, 5, 5, TheCase);
-    afficheGrille(grille, 5, 5, &TheCase);
+    int TabVoisines[4];
+    parametres(&nlig, &ncol, &niveau, &next);
+    creerTabNimber(nlig, ncol, tabnim);
+    initGrille(grille, nlig, ncol);
+    afficheGrille(grille, nlig, ncol, &actualCase);
+    while (actualCase.ligne != nlig - 1 || actualCase.colonne != ncol - 1)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            sleep(1);
+            if (next == 1)
+            {
+                coupOrdi(nlig, ncol, actualCase, tabnim, grille, niveau);
+                next = 2;
+            }
+            else
+            {
+                coupJoueur(grille, nlig, ncol, actualCase);
+                next = 1;
+            }
+            afficheGrille(grille, nlig, ncol, &actualCase);
+            if (actualCase.ligne == nlig - 1 && actualCase.colonne == ncol - 1) break;
+        }
+    }
+    if (next == 1) printf("\nLe joueur a gagne : Ratio");
+    else printf("\nL'ordi a gagne : Ratio");
 }
+
 
 void creerTabNimber(int nlig, int ncol, int tabnim[LMAX][CMAX])
 {
@@ -150,7 +171,7 @@ void afficheGrille(int tab[][CMAX], int L, int C, T_case *Acase)
                 {
                     printf("\e[0;32m %3d\e[0m||", compteLigne + 1);
                 }
-                if (compteLigne == L - 1 && compteColonne == C - 1)
+                if (compteLigne == L - 1 && compteColonne == C - 1 && tab[compteLigne][compteColonne] != 0)
                     printf("\e[7;34m%3c|\e[0m", '-');
                 else if (tab[compteLigne][compteColonne] > 0)
                 {
@@ -158,7 +179,8 @@ void afficheGrille(int tab[][CMAX], int L, int C, T_case *Acase)
                 }
                 if (tab[compteLigne][compteColonne] == 0)
                 {
-                    printf("\e[1;35m%3d\e[0m|", 0);
+                    if (compteLigne == L - 1 && compteColonne == C - 1) printf("\e[7;35m%3d|\e[0m", 0);
+                    else printf("\e[1;35m%3d\e[0m|", 0);
                     T_case temp = {compteLigne, compteColonne};
                     *Acase = temp;
                 }
@@ -171,11 +193,11 @@ void parametres(int *nlig, int *ncol, int *niveau, int *next)
 {
     printf("Saisir le nombre de lignes : ");
     *nlig = lire_entier(5, LMAX);
-    printf("\nSaisir le nombre de colonnes : ");
+    printf("Saisir le nombre de colonnes : ");
     *ncol = lire_entier(5, CMAX);
-    printf("\nDe quel niveau est l'IA ? (de 1 à 4) : ");
+    printf("De quel niveau est l'IA ? (de 1 a 4) : ");
     *niveau = lire_entier(1, 4);
-    printf("\nQui commence ? Ordinateur (1), joueur (2) : ");
+    printf("Qui commence ? Ordinateur (1), joueur (2) : ");
     *next = lire_entier(1, 2);
 }
 int lire_entier(int min, int max)
@@ -245,7 +267,7 @@ void coupOrdi(int nlig, int ncol, T_case Acase, T_case tabnim[LMAX][CMAX], int t
     }
     else caseVisee = coupOrdiGagnant(nlig, ncol, Acase, tabnim);
     printf("\nTour de l'ordinateur :");
-    printf("\nL'ordinateur deplace le pion en case (%d, %d) !", caseVisee.ligne, caseVisee.colonne);
+    printf("\nL'ordinateur deplace le pion en case (%d, %d) !\n", caseVisee.ligne + 1, caseVisee.colonne + 1);
     echange(&tab[caseVisee.ligne][caseVisee.colonne], &tab[Acase.ligne][Acase.colonne]);
 
 }
