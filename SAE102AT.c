@@ -5,6 +5,7 @@
 #define LMAX 30
 #define CMAX 30
 
+
 typedef struct
 {
     int ligne;
